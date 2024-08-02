@@ -32,4 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 
-/WeatherSensor/WeatherSense/src/main/resources/application.properties
+WeatherSensor/src/main/resources/application.properties
