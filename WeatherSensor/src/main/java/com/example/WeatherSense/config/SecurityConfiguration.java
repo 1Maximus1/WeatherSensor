@@ -1,5 +1,6 @@
 package com.example.WeatherSense.config;
 
+import com.example.WeatherSense.security.AccessDeniedHandlerImpl;
 import com.example.WeatherSense.security.AuthProviderImpl;
 import com.example.WeatherSense.services.PersonDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +25,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfiguration {
     private final JWTFilter jwtFilter;
+    private final AccessDeniedHandlerImpl accessDeniedHandler;
 
     @Autowired
-    public SecurityConfiguration(JWTFilter jwtFilter) {
+    public SecurityConfiguration(JWTFilter jwtFilter, AccessDeniedHandlerImpl accessDeniedHandler) {
         this.jwtFilter = jwtFilter;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -45,8 +48,9 @@ public class SecurityConfiguration {
                         .requestMatchers("/auth/login","/auth/registration" ,"/error").permitAll()
                         .anyRequest().hasAnyRole("USER", "ADMIN"))
                 .httpBasic(Customizer.withDefaults())
-                .sessionManagement(sm-> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
+                .sessionManagement(sm-> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(accessDeniedHandler));
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
